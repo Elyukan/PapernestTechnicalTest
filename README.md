@@ -15,14 +15,17 @@ Determine your python version (if it's not python 3.10.16 by default):
 `poetry env use python3.10`
 
 Install the dependencies:
+
 `poetry install`
 
 Run the project:
+
 `poetry run manage.py runserver`
 
 ### 1(bis) - Requirements.txt
 
 In case of you don't want to use poetry, you can also use a virtualenv and install it with pip:
+
 `pip install -r requirements.txt`
 
 ### 2 - Database setup
@@ -33,4 +36,5 @@ In Django, a good practice is to handle local settings in another file which is 
 Duplicate the `local_settings_exemple.py` file, rename it `local_settings.py` and fill it with your own database settings and logins.
 
 Then, init the database:
+
 `./manage.py migrate` or `poetry run manage.py migrate`
