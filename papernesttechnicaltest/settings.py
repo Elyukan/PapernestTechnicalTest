@@ -135,3 +135,5 @@ DISTANCE_COVERAGE_2G = 30.0
 API_ADDRESS_GOUV_URL = "https://data.geopf.fr/geocodage/search"
 
 MIN_MATCH_SCORE = 0.70
+
+from .local_settings import *

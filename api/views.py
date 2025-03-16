@@ -23,7 +23,7 @@ class NetworkCoverageView(APIView):
             response = await client.get(settings.API_ADDRESS_GOUV_URL, params={"q": address[1]})
             data: dict = response.json()
 
-            # If no match is found and we are returning / logging an error.
+            # If no match is found we are returning / logging an error.
             if len(data["features"]) == 0:
                 print(data["features"])
                 return {
