@@ -5,7 +5,7 @@ My technical test is in Python 3.10.16. I'm using Django4.1 and his framework Dj
 ## Installation
 
 ### 1 - Poetry
-I'm using Poetry which is a python package manager (like NPM). You can install it with your favorite package manager such as apt or directly on their website.
+I'm using Poetry which is a python package manager (like NPM). You can install it with your favorite package manager (like apt) or directly from their website.
 https://python-poetry.org/
 
 If you struggle to install / use it, go to the next section.
