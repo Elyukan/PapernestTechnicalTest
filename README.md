@@ -1,6 +1,6 @@
 # Papernest Technical Test
 
-My technical test is in Python 3.10.16. I'm using Django4.1 and his framework DjangoRestFramework which provide tools to build REST API.
+My technical test is in Python 3.10.16. I'm using Django 4.2.20 and his framework DjangoRestFramework which provide tools to build REST API.
 
 ## Installation
 
