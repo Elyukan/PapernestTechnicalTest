@@ -179,3 +179,10 @@ In order to access it you have to create a superuser account, run the following 
 `./manage.py createsuperuser` or `poetry run manage.py createsuperuser`
 
 And then you can log in.
+
+
+### Tests (WIP)
+
+You can run the tests with this following command:
+
+`pytest`

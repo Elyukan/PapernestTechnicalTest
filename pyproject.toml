@@ -15,8 +15,13 @@ adrf = "^0.1.9"
 psycopg2-binary = "^2.9.10"
 django = "4.1"
 drf-spectacular = "^0.28.0"
+pytest-django = "^4.10.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "papernesttechnicaltest.settings"
+python_files = "tests.py test_*.py *_tests.py"
