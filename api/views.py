@@ -1,7 +1,7 @@
 from adrf.views import APIView
 from django.http import JsonResponse
 from django.conf import settings
-
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from .models import NetworkProviderTowerModel
 import re
@@ -11,6 +11,7 @@ import asyncio
 import httpx
 
 class NetworkCoverageView(APIView):
+    serializer_class = NetworkCoverageSerializer
 
     async def fetch_data(self, network_provider_towers: list[NetworkProviderTowerModel], address: tuple[str, str, str]) -> dict:
         """
@@ -41,7 +42,7 @@ class NetworkCoverageView(APIView):
                     break
             if not is_match:
                 return {
-                    address[0]: {"Error": f"Adresse invalide ou introuvable. {len(data['features'])} correspondance(s) trouvé(s)."}
+                    address[0]: {"Error": f"Adresse invalide ou introuvable. {len(data['features'])} correspondance(s) trouvé(s) mais aucune ne correspond parfaitement."}
                 }
         
         # We loop through our previously "postcode-filtered" towers, calculate the distance between the address and the towers and determine if the address is in the coverage area
@@ -69,16 +70,20 @@ class NetworkCoverageView(APIView):
         network_provider_towers_regarding_postcode: dict = {}
 
         # Validate the request body format
-        serializer = NetworkCoverageSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         # We loop through the addresses to extract the required data.
         for address in serializer.validated_data["addresses"]:
-            match = re.search(pattern, address["address"])
-            adresse_complete = address["address"].strip()
-            code_postal = match.group(2)
-            postalcodes.append(code_postal)
-            addresses.append((address["identifier"], adresse_complete, code_postal))
+            try:
+                match = re.search(pattern, address["address"])
+                adresse_complete = address["address"].strip()
+                code_postal = match.group(2)
+                postalcodes.append(code_postal)
+                addresses.append((address["identifier"], adresse_complete, code_postal))
+            except AttributeError:
+                # If an address is wrongly formated, return an error
+                return JsonResponse({"Status": "Error", "message": f"{address['address']} - Adresse mal formatée"}, status=HTTP_400_BAD_REQUEST)
 
         # The request only fetch instances that matchs with the given postal codes to prevent unnecessary database queries.
         queryset = NetworkProviderTowerModel.objects.filter(postcode__in=postalcodes).select_related("network_provider")
