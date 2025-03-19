@@ -34,7 +34,7 @@ class Command(BaseCommand):
         """
         output_buffer.seek(0)
         files = {"data": ("partial_csv.csv", output_buffer.getvalue(), "text/csv")}
-        url = "https://api-adresse.data.gouv.fr/reverse/csv/"
+        url = "https://data.geopf.fr/geocodage/reverse/csv/"
         response = requests.post(url, files=files)
         result_buffer = io.StringIO(response.text)
         csv_reader = csv.reader(result_buffer)
