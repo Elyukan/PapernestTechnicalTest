@@ -1,7 +1,9 @@
+from typing import Any
 from adrf.views import APIView
 from django.http import JsonResponse
 from django.conf import settings
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.request import Request
 
 from .models import NetworkProviderTowerModel
 import re
@@ -60,7 +62,7 @@ class NetworkCoverageView(APIView):
             address[0]: response_data
         }
 
-    async def post(self, request, *args, **kwargs):
+    async def post(self, request: Request, *args: Any, **kwargs: Any):
         """
         Post request which returns the coverage of the addresses given in the body
         """
