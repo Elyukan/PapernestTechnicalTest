@@ -6,6 +6,8 @@ from django.core.management import BaseCommand
 from django.core.management.base import CommandParser
 from pyproj import Transformer
 from typing import Any
+from tqdm import tqdm
+from time import sleep
 
 from api.models import NetworkProviderModel, NetworkProviderTowerModel
 
@@ -69,6 +71,7 @@ class Command(BaseCommand):
         """
         Entrypoint of the manage command
         """
+        NetworkProviderModel.objects.all().delete()
         # The gouvernment API has an endpoint that allows reverse geocoding from coordinates by sending them in a CSV file.
         # Because we are dealing with large csv files and want to avoid excessive API calls, we use the CSV-based API call.
         self.network_provider_towers: list[NetworkProviderTowerModel] = []
@@ -88,25 +91,29 @@ class Command(BaseCommand):
         count = 0
         # The main issue here is handling large csv files which can contain than 50k lines.
         # To manage this, we divide the data into smaller chunks before sending them to the government API.
-        for row in csv_reader:
-            # The reverse geocoding API only handles latitude and longitude coordinates,
-            # so we need to convert the Lambert93 coordinates and add them to the in-memory CSV.
-            lon, lat = self.lamber93_to_gps(int(row[x_coordinate_index]), int(row[y_coordinate_index]))
-            row += [str(lat), str(lon)]
-            csv_writer.writerow(row)
-            count += 1
+        with tqdm(total=100) as pbar:
+            for row in csv_reader:
+                # The reverse geocoding API only handles latitude and longitude coordinates,
+                # so we need to convert the Lambert93 coordinates and add them to the in-memory CSV.
+                lon, lat = self.lamber93_to_gps(int(row[x_coordinate_index]), int(row[y_coordinate_index]))
+                row += [str(lat), str(lon)]
+                csv_writer.writerow(row)
+                count += 1
 
-            # When the chunk is full we send it to the API and process the response to create our network provider towers
-            if count % CHUNK_SIZE == 0:
+                # When the chunk is full we send it to the API and process the response to create our network provider towers
+                if count % CHUNK_SIZE == 0:
+                    self.send_partial_csv(output_buffer)
+                    # Reset the buffer
+                    output_buffer = io.StringIO()
+                    csv_writer = csv.writer(output_buffer)
+                    csv_writer.writerow(headers)
+                    pbar.update(10)
+                    sleep(0.1)
+            # Send the remaining data in the CSV file
+            if count % CHUNK_SIZE != 0:
                 self.send_partial_csv(output_buffer)
-                # Reset the buffer
-                output_buffer = io.StringIO()
-                csv_writer = csv.writer(output_buffer)
-                csv_writer.writerow(headers)
-
-        # Send the remaining data in the CSV file
-        if count % CHUNK_SIZE != 0:
-            self.send_partial_csv(output_buffer)
+            pbar.update(30)
+            sleep(0.1)
         
         # Insert all instances into the database using bulk_create to optimize database performance
         NetworkProviderTowerModel.objects.bulk_create(self.network_provider_towers, batch_size=CHUNK_SIZE)

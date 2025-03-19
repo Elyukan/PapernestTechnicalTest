@@ -16,6 +16,7 @@ psycopg2-binary = "^2.9.10"
 django = "4.1"
 drf-spectacular = "^0.28.0"
 pytest-django = "^4.10.0"
+tqdm = "^4.67.1"
 
 
 [build-system]
